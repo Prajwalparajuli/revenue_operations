@@ -1,0 +1,285 @@
+# Silver Layer Plan
+
+## Goal
+
+Create cleaned, validated Silver tables from the Bronze tables.
+
+Start with only:
+
+- `silver.orders`
+- `silver.order_items`
+- `silver.payments`
+
+Do not build Gold tables yet.
+
+---
+
+# 1. Silver Orders
+
+## Source
+
+```text
+revenue_operations.bronze.orders
+```
+
+## Target
+
+```text
+revenue_operations.silver.orders
+```
+
+## Columns
+
+Keep the existing column names.
+
+## Data types
+
+Use:
+
+- `order_id` → string
+- `customer_id` → string
+- `order_status` → string
+- all order date/time fields → timestamp
+
+Do not split timestamps into separate date and time columns.
+
+## Duplicate handling
+
+- Remove exact duplicate rows if any exist.
+- Confirm `order_id` is unique.
+
+## Null handling
+
+- `order_id` must not be null.
+- `customer_id` must not be null.
+- Keep missing delivery or approval timestamps as null.
+- Do not replace timestamp nulls with text such as `"pending"`.
+
+You may create status flags later, such as:
+
+```text
+is_delivered
+is_cancelled
+is_late
+```
+
+## Key
+
+```text
+Primary key: order_id
+```
+
+## Validation rules
+
+- `order_id` must be unique.
+- `order_purchase_timestamp` must not be null.
+- Validate `order_status` using the actual values found in Bronze.
+- When both dates exist:
+  - purchase time should be before approval time.
+  - approval time should be before carrier delivery time.
+  - carrier delivery time should be before customer delivery time.
+- Estimated delivery date should be after the purchase date.
+
+Do not apply date-order rules when the necessary date is null.
+
+## Foreign-key check
+
+Check whether every `customer_id` exists in the Customers table.
+
+Do not delete unmatched rows automatically. Count and flag them first.
+
+---
+
+# 2. Silver Order Items
+
+## Source
+
+```text
+revenue_operations.bronze.order_items
+```
+
+## Target
+
+```text
+revenue_operations.silver.order_items
+```
+
+## Columns
+
+Keep the existing column names.
+
+## Data types
+
+Use:
+
+- `order_id` → string
+- `order_item_id` → integer
+- `product_id` → string
+- `seller_id` → string
+- `shipping_limit_date` → timestamp
+- `price` → decimal
+- `freight_value` → decimal
+
+## Duplicate handling
+
+- Remove exact duplicate rows if any exist.
+- Check uniqueness of:
+
+```text
+order_id + order_item_id
+```
+
+## Null handling
+
+These should not be null:
+
+- `order_id`
+- `order_item_id`
+- `product_id`
+- `seller_id`
+
+## Key
+
+```text
+Composite primary key:
+order_id + order_item_id
+```
+
+`order_item_id` is the sequence of the item inside an order, not the quantity.
+
+## Validation rules
+
+- `order_item_id >= 1`
+- `price > 0`
+- `freight_value >= 0`
+- `shipping_limit_date` should be a valid timestamp
+
+Do not assume freight must always be lower than product price. Flag unusual cases instead of rejecting them.
+
+## Foreign-key checks
+
+Check whether:
+
+- `order_id` exists in Orders
+- `product_id` exists in Products
+- `seller_id` exists in Sellers
+
+Count unmatched rows before deciding what to do with them.
+
+---
+
+# 3. Silver Payments
+
+## Source
+
+```text
+revenue_operations.bronze.payments
+```
+
+## Target
+
+```text
+revenue_operations.silver.payments
+```
+
+## Columns
+
+Keep the existing column names.
+
+## Data types
+
+Use:
+
+- `order_id` → string
+- `payment_sequential` → integer
+- `payment_type` → string
+- `payment_installments` → integer
+- `payment_value` → decimal
+
+## Duplicate handling
+
+- Remove exact duplicate rows if any exist.
+- Check uniqueness of:
+
+```text
+order_id + payment_sequential
+```
+
+## Null handling
+
+These should not be null:
+
+- `order_id`
+- `payment_sequential`
+- `payment_type`
+- `payment_value`
+
+## Key
+
+```text
+Composite primary key:
+order_id + payment_sequential
+```
+
+## Validation rules
+
+- `payment_sequential >= 1`
+- `payment_installments >= 0`
+- `payment_value >= 0`
+- Validate `payment_type` using the actual distinct values found in Bronze.
+
+Do not invent allowed payment types before checking the data.
+
+## Foreign-key check
+
+Check whether every `order_id` exists in Orders.
+
+---
+
+# Invalid-row handling
+
+For now, do not silently delete invalid records.
+
+Classify records as:
+
+- valid
+- duplicate
+- missing key
+- invalid value
+- unmatched foreign key
+
+You can either flag invalid rows or place them in a quarantine table later.
+
+---
+
+# Audit columns
+
+Add these to each Silver table:
+
+```text
+source_file_name
+ingestion_timestamp
+silver_processed_timestamp
+```
+
+Optional:
+
+```text
+data_quality_status
+```
+
+---
+
+# Validation summary
+
+For each table, record:
+
+```text
+Bronze row count
+Exact duplicates found
+Rows with missing keys
+Rows with invalid values
+Rows with unmatched foreign keys
+Silver row count
+```
+
