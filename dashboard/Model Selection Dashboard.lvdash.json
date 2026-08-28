@@ -1,0 +1,1184 @@
+{
+  "datasets": [
+    {
+      "name": "b62ecefa",
+      "displayName": "Model Performance Ranking Overview",
+      "queryLines": [
+        "SELECT\n",
+        "  REPLACE(\n",
+        "    REPLACE(UPPER(REPLACE(model_name, '_', ' ')), ' W ', '\\nW '),\n",
+        "    'ENSEMBLE ',\n",
+        "    'ENSEMBLE\\n'\n",
+        "  ) AS model_name,\n",
+        "  model_type,\n",
+        "  val_f1,\n",
+        "  val_precision,\n",
+        "  val_recall,\n",
+        "  val_roc_auc,\n",
+        "  val_pr_auc,\n",
+        "  val_top10_capture,\n",
+        "  train_f1,\n",
+        "  test_pr_auc,\n",
+        "  test_f1,\n",
+        "  created_at,\n",
+        "  run_id,\n",
+        "  overfitting_gap,\n",
+        "  train_duration_sec,\n",
+        "  model_size_mb,\n",
+        "  latency_p50_ms,\n",
+        "  latency_p95_ms,\n",
+        "  batch_throughput_rps,\n",
+        "  orders_inspected,\n",
+        "  late_orders_caught,\n",
+        "  gross_loss_prevented,\n",
+        "  intervention_cost,\n",
+        "  net_business_value,\n",
+        "  composite_score,\n",
+        "  deployment_status\n",
+        "FROM\n",
+        "  revenue_operations.gold.model_evaluation_leaderboard\n",
+        "WHERE\n",
+        "  model_type != 'champion_ensemble_lr_xgb'"
+      ],
+      "catalog": "revenue_operations",
+      "schema": "gold"
+    },
+    {
+      "name": "480e6cc0",
+      "displayName": "Top performing model",
+      "queryLines": [
+        "SELECT\n",
+        "  REPLACE(\n",
+        "    REPLACE(UPPER(REPLACE(model_name, '_', ' ')), ' W ', '\\nW '),\n",
+        "    'ENSEMBLE ',\n",
+        "    'ENSEMBLE\\n'\n",
+        "  ) AS formatted_model_name,\n",
+        "  val_top10_capture,\n",
+        "  net_business_value\n",
+        "FROM\n",
+        "  revenue_operations.gold.model_evaluation_leaderboard\n",
+        "ORDER BY\n",
+        "  val_top10_capture DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "b5f1fd9c",
+      "displayName": "p95 latency",
+      "queryLines": [
+        "SELECT  REPLACE(\r\n",
+        "    REPLACE(UPPER(REPLACE(model_name, '_', ' ')), ' W ', '\\nW '),\r\n",
+        "    'ENSEMBLE ',\r\n",
+        "    'ENSEMBLE\\n'\r\n",
+        "  ) AS model_name, latency_p95_ms\r\n",
+        "FROM revenue_operations.gold.model_evaluation_leaderboard\r\n",
+        "WHERE latency_p95_ms IS NOT NULL\r\n",
+        "ORDER BY latency_p95_ms \r\n",
+        "LIMIT 2\r\n"
+      ]
+    },
+    {
+      "name": "977fbf5b",
+      "displayName": "ROC AUC",
+      "queryLines": [
+        "SELECT  REPLACE(\r\n",
+        "    REPLACE(UPPER(REPLACE(model_name, '_', ' ')), ' W ', '\\nW '),\r\n",
+        "    'ENSEMBLE ',\r\n",
+        "    'ENSEMBLE\\n'\r\n",
+        "  ) AS model_name, val_roc_auc\r\n",
+        "FROM revenue_operations.gold.model_evaluation_leaderboard\r\n",
+        "WHERE val_roc_auc IS NOT NULL\r\n",
+        "ORDER BY val_roc_auc DESC\r\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "de3fd20e",
+      "displayName": "PR AUC",
+      "queryLines": [
+        "SELECT  REPLACE(\r\n",
+        "    REPLACE(UPPER(REPLACE(model_name, '_', ' ')), ' W ', '\\nW '),\r\n",
+        "    'ENSEMBLE ',\r\n",
+        "    'ENSEMBLE\\n'\r\n",
+        "  ) AS model_name, val_pr_auc\r\n",
+        "FROM revenue_operations.gold.model_evaluation_leaderboard\r\n",
+        "WHERE val_pr_auc IS NOT NULL\r\n",
+        "ORDER BY val_pr_auc DESC\r\n",
+        "LIMIT 1\r\n"
+      ]
+    }
+  ],
+  "relationshipGraphs": [
+    {
+      "sources": [
+        {
+          "name": "Untitled_dataset",
+          "datasetName": "b62ecefa"
+        },
+        {
+          "name": "Untitled_dataset_1",
+          "datasetName": "480e6cc0"
+        },
+        {
+          "name": "Untitled_dataset_2",
+          "datasetName": "b5f1fd9c"
+        },
+        {
+          "name": "Untitled_dataset_3",
+          "datasetName": "977fbf5b"
+        },
+        {
+          "name": "Untitled_dataset_4",
+          "datasetName": "de3fd20e"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "4ece62f0",
+      "displayName": "Model Selection dashboard",
+      "layout": [
+        {
+          "widget": {
+            "name": "top-10-late-delivery-capture-by-model-in-percent",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__val_top10_capture",
+                      "expression": "`Untitled_dataset`.`val_top10_capture`"
+                    },
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\">Late Delivery Capture in Top 10% order by models</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__val_top10_capture",
+                  "displayName": "Late delivery Capture in Top 10 (%)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "axis": {
+                    "hideLabels": false
+                  },
+                  "displayName": "Model Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "Untitled_dataset__val_top10_capture"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 4,
+            "width": 7,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "model-validation-metrics",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_f1",
+                      "expression": "`Untitled_dataset`.`val_f1`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_precision",
+                      "expression": "`Untitled_dataset`.`val_precision`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_recall",
+                      "expression": "`Untitled_dataset`.`val_recall`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_roc_auc",
+                      "expression": "`Untitled_dataset`.`val_roc_auc`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_pr_auc",
+                      "expression": "`Untitled_dataset`.`val_pr_auc`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_top10_capture",
+                      "expression": "`Untitled_dataset`.`val_top10_capture`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Model Validation Metrics Comparison</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Untitled_dataset__model_name",
+                    "columnWidth": 240,
+                    "displayName": "Model Name"
+                  },
+                  {
+                    "fieldName": "Untitled_dataset__val_f1",
+                    "columnWidth": 90,
+                    "contentAlignment": "center",
+                    "displayName": "F1 Score"
+                  },
+                  {
+                    "fieldName": "Untitled_dataset__val_precision",
+                    "columnWidth": 90,
+                    "contentAlignment": "center",
+                    "displayName": "Precision"
+                  },
+                  {
+                    "fieldName": "Untitled_dataset__val_recall",
+                    "columnWidth": 90,
+                    "contentAlignment": "center",
+                    "displayName": "Recall"
+                  },
+                  {
+                    "fieldName": "Untitled_dataset__val_roc_auc",
+                    "columnWidth": 90,
+                    "contentAlignment": "center",
+                    "displayName": "ROC AUC"
+                  },
+                  {
+                    "fieldName": "Untitled_dataset__val_pr_auc",
+                    "columnWidth": 90,
+                    "contentAlignment": "center",
+                    "displayName": "PR AUC"
+                  },
+                  {
+                    "fieldName": "Untitled_dataset__val_top10_capture",
+                    "columnWidth": 120,
+                    "contentAlignment": "center",
+                    "displayName": "Top 10 Capture"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 22,
+            "width": 8,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "d16267f4",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    },
+                    {
+                      "name": "Untitled_dataset__gross_loss_prevented",
+                      "expression": "`Untitled_dataset`.`gross_loss_prevented`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_f1",
+                      "expression": "`Untitled_dataset`.`val_f1`"
+                    },
+                    {
+                      "name": "Untitled_dataset__net_business_value",
+                      "expression": "`Untitled_dataset`.`net_business_value`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Model Performance: F1 Score vs Net Business Value</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__val_f1",
+                  "displayName": "F1 Score",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "min": 0,
+                      "max": 0.3
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "Untitled_dataset__net_business_value",
+                  "displayName": "Net Business Value ($)",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "max": 8000,
+                      "min": 4000
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "displayName": "Model Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "size": {
+                  "fieldName": "Untitled_dataset__gross_loss_prevented",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "precision-recall-tradeoff",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_top10_capture",
+                      "expression": "`Untitled_dataset`.`val_top10_capture`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_recall",
+                      "expression": "`Untitled_dataset`.`val_recall`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_precision",
+                      "expression": "`Untitled_dataset`.`val_precision`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Precisioin-Recall Tradeoff</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__val_recall",
+                  "displayName": "Recall",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "min": 0,
+                      "max": 0.85
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "Untitled_dataset__val_precision",
+                  "displayName": "Precision",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "min": 0,
+                      "max": 0.45
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "legend": {
+                    "hide": false
+                  },
+                  "displayName": "Model Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "size": {
+                  "fieldName": "Untitled_dataset__val_top10_capture",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 16,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "overfitting-check",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    },
+                    {
+                      "name": "Untitled_dataset__overfitting_gap",
+                      "expression": "`Untitled_dataset`.`overfitting_gap`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Overfitting Check</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "displayName": "Model Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "Untitled_dataset__overfitting_gap",
+                  "displayName": "Overfitting gap",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 22,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "latency-vs-performance",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__model_type",
+                      "expression": "`Untitled_dataset`.`model_type`"
+                    },
+                    {
+                      "name": "Untitled_dataset__batch_throughput_rps",
+                      "expression": "`Untitled_dataset`.`batch_throughput_rps`"
+                    },
+                    {
+                      "name": "Untitled_dataset__latency_p95_ms",
+                      "expression": "`Untitled_dataset`.`latency_p95_ms`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_pr_auc",
+                      "expression": "`Untitled_dataset`.`val_pr_auc`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Latency VS Performance</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__latency_p95_ms",
+                  "displayName": "Latency",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "min": -1
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "Untitled_dataset__val_pr_auc",
+                  "displayName": "PR AUC",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "max": 0.2
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "Untitled_dataset__model_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "size": {
+                  "fieldName": "Untitled_dataset__batch_throughput_rps",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 16,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "roc-auc-leaderboard",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__val_roc_auc",
+                      "expression": "`Untitled_dataset`.`val_roc_auc`"
+                    },
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">ROC AUC Leaderboard</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__val_roc_auc",
+                  "displayName": "ROC AUC",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 10,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "model_name",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__val_top10_capture",
+                      "expression": "`Untitled_dataset`.`val_top10_capture`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Highest Top 10% Capture Rate</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Untitled_dataset__val_top10_capture",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "style": {
+                    "fontSize": 18
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "best-business-value-model",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset_1__net_business_value",
+                      "expression": "`Untitled_dataset_1`.`net_business_value`"
+                    },
+                    {
+                      "name": "Untitled_dataset_1__formatted_model_name",
+                      "expression": "`Untitled_dataset_1`.`formatted_model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Best Business Value Model",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Untitled_dataset_1__formatted_model_name",
+                  "style": {
+                    "fontSize": 12,
+                    "textCase": "none"
+                  }
+                },
+                "target": {
+                  "fieldName": "Untitled_dataset_1__net_business_value",
+                  "style": {
+                    "rules": [
+                      {
+                        "condition": {
+                          "operator": ">="
+                        },
+                        "color": "#00A972"
+                      }
+                    ]
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "lowest-p95-latency-model",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset_2__latency_p95_ms",
+                      "expression": "`Untitled_dataset_2`.`latency_p95_ms`"
+                    },
+                    {
+                      "name": "Untitled_dataset_2__model_name",
+                      "expression": "`Untitled_dataset_2`.`model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Lowest P95 Latency Model (in ms)",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Untitled_dataset_2__model_name",
+                  "style": {
+                    "fontSize": 12
+                  }
+                },
+                "target": {
+                  "fieldName": "Untitled_dataset_2__latency_p95_ms",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "model-architectural-tradeoffs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_f1",
+                      "expression": "`Untitled_dataset`.`val_f1`"
+                    },
+                    {
+                      "name": "Untitled_dataset__val_roc_auc",
+                      "expression": "`Untitled_dataset`.`val_roc_auc`"
+                    },
+                    {
+                      "name": "Untitled_dataset__latency_p95_ms",
+                      "expression": "`Untitled_dataset`.`latency_p95_ms`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\">Model Type Comparision</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "axis": {
+                    "hideLabels": false
+                  },
+                  "displayName": "Model Type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "Untitled_dataset__val_f1"
+                      },
+                      {
+                        "fieldName": "Untitled_dataset__val_roc_auc"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "Untitled_dataset__latency_p95_ms"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "29271971",
+            "multilineTextboxSpec": {
+              "lines": [
+                "<span style=\"text-align:center;display:block;\"><span style=\"font-size:24px\">Model Selection</span></span>"
+              ],
+              "verticalAlign": "VERTICAL_ALIGN_CENTER"
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "7677d042",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset_3__val_roc_auc",
+                      "expression": "`Untitled_dataset_3`.`val_roc_auc`"
+                    },
+                    {
+                      "name": "Untitled_dataset_3__model_name",
+                      "expression": "`Untitled_dataset_3`.`model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Highest ROC AUC",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Untitled_dataset_3__model_name",
+                  "style": {
+                    "fontSize": 12
+                  }
+                },
+                "target": {
+                  "fieldName": "Untitled_dataset_3__val_roc_auc"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "28644f12",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset_4__val_pr_auc",
+                      "expression": "`Untitled_dataset_4`.`val_pr_auc`"
+                    },
+                    {
+                      "name": "Untitled_dataset_4__model_name",
+                      "expression": "`Untitled_dataset_4`.`model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Highest PR AUC",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Untitled_dataset_4__model_name",
+                  "style": {
+                    "fontSize": 12
+                  }
+                },
+                "target": {
+                  "fieldName": "Untitled_dataset_4__val_pr_auc",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    },
+                    "significantFigures": {
+                      "type": "all"
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "1b354e4e",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "fields": [
+                    {
+                      "name": "Untitled_dataset__val_recall",
+                      "expression": "`Untitled_dataset`.`val_recall`"
+                    },
+                    {
+                      "name": "Untitled_dataset__model_name",
+                      "expression": "`Untitled_dataset`.`model_name`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Highest PR AUC",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "Untitled_dataset__model_name",
+                  "style": {
+                    "fontSize": 12
+                  }
+                },
+                "target": {
+                  "fieldName": "Untitled_dataset__val_recall"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
